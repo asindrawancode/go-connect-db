@@ -78,6 +78,13 @@ func Pay(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Simulate successful payment
+	err = storage.DecreaseStock(cartItems) // Decrease stock after successful payment
+	if err != nil {
+		http.Error(w, "failed to decrease stock", http.StatusInternalServerError)
+		return
+	}
+
+	// Simulate successful payment
 	if err := storage.ClearCart(userID); err != nil {
 		http.Error(w, "failed to clear cart", http.StatusInternalServerError)
 		return

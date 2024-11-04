@@ -34,6 +34,21 @@ func AddItemToCart(userID string, itemID, quantity int) error {
 	return err
 }
 
+// DecreaseStock decreases the stock of an item after a successful payment.
+func DecreaseStock(cartItems map[int]int) error {
+	for itemID, quantity := range cartItems {
+		// Decrease the stock for each item in the cart
+		_, err := DB.Exec(context.Background(),
+			`UPDATE items SET stock = stock - $1 WHERE id = $2 AND stock >= $1`,
+			quantity, itemID)
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // GetCartItems retrieves all items in a user's cart.
 func GetCartItems(userID string) (map[int]int, error) {
 	rows, err := DB.Query(context.Background(), "SELECT item_id, quantity FROM carts WHERE user_id=$1", userID)
